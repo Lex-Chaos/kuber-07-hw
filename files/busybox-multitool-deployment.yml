@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: busybox-multitool-deployment
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: busybox-multitool
+  template:
+    metadata:
+      labels:
+        app: busybox-multitool
+    spec:
+      containers:
+      - name: busybox
+        image: busybox:latest
+        command: 
+        - /bin/sh
+        - -c
+        - |
+          while true; do
+            echo "$(date +'%Y-%m-%d %H:%M:%S') Test from busybox" >> /tmp/hwstorage/log.txt
+            sleep 5
+          done
+        volumeMounts:
+        - name: persistent-storage
+          mountPath: /tmp/hwstorage
+
+      - name: multitool
+        image: wbitt/network-multitool
+        volumeMounts:
+        - name: persistent-storage
+          mountPath: /tmp/hwstorage
+    
+      volumes:
+      - name: persistent-storage 
+        persistentVolumeClaim:
+          claimName: pvc-storage         
+    
+ 
