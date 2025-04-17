@@ -133,7 +133,27 @@ spec:
 
 ## Ответ:
 
-[Манифест pvc-nfc](https://github.com/Lex-Chaos/kuber-07-hw/blob/main/files/pvc-homework-nfc.yml):
+Установил согласно инструкции NFC на microk8s.
+
+[Создал storageClass](https://github.com/Lex-Chaos/kuber-07-hw/blob/main/files/sc-nfc.yml):
+
+```yml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nfs-csi
+provisioner: nfs.csi.k8s.io
+parameters:
+  server: 192.168.203.50
+  share: /srv/nfs
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+mountOptions:
+  - hard
+  - nfsvers=4.2
+```
+
+[Манифест pvc](https://github.com/Lex-Chaos/kuber-07-hw/blob/main/files/pvc-homework-nfc.yml):
 
 ```yml
 apiVersion: v1
@@ -142,7 +162,7 @@ metadata:
   name: pvc-storage ##
   namespace: default ##
 spec:
-  storageClassName: "microk8s-hostpath"
+  storageClassName: nfs-csi
   volumeMode: Filesystem 
   accessModes: ###
   - ReadWriteOnce ###
@@ -152,10 +172,6 @@ spec:
 ```
 
 Деплоймент оставил из прошлого задания.
-
-Включил hostpath-storage:
-
-![hostpath-storage](https://github.com/Lex-Chaos/kuber-07-hw/blob/main/img/Task2-1.png)
 
 Запись-чтение файла:
 
